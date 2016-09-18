@@ -14,8 +14,8 @@ subject to the following restrictions:
 */
 
 
-#ifndef BT_KINEMATIC_CHARACTER_CONTROLLER_H
-#define BT_KINEMATIC_CHARACTER_CONTROLLER_H
+#ifndef KINEMATIC_CHARACTER_CONTROLLER_H
+#define KINEMATIC_CHARACTER_CONTROLLER_H
 
 #include "LinearMath/btVector3.h"
 
@@ -167,4 +167,4 @@ public:
 	void setUpInterpolate (bool value);
 };
 
-#endif // BT_KINEMATIC_CHARACTER_CONTROLLER_H
+#endif // KINEMATIC_CHARACTER_CONTROLLER_H

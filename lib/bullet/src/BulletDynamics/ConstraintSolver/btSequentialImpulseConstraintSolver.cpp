@@ -803,7 +803,11 @@ void btSequentialImpulseConstraintSolver::setupContactConstraint(btSolverConstra
 #endif //COMPUTE_IMPULSE_DENOM
 
 					btScalar denom = relaxation/(denom0+denom1);
-					solverConstraint.m_jacDiagABInv = denom;
+                    btAssert(!isnan(denom0));
+                    btAssert(!isnan(denom1));
+                    btAssert(!isnan(relaxation));
+                    btAssert(!isnan(denom));
+                    solverConstraint.m_jacDiagABInv = denom;
 				}
 
 				if (rb0)

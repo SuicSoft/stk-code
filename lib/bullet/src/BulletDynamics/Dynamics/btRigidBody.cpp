@@ -83,7 +83,7 @@ void	btRigidBody::setupRigidBody(const btRigidBody::btRigidBodyConstructionInfo&
 
 	setCollisionShape( constructionInfo.m_collisionShape );
 	m_debugBodyId = uniqueId++;
-	
+	btAssert(constructionInfo.m_mass>=0);
 	setMassProps(constructionInfo.m_mass, constructionInfo.m_localInertia);
 	updateInertiaTensor();
 
@@ -134,6 +134,9 @@ void	btRigidBody::getAabb(btVector3& aabbMin,btVector3& aabbMax) const
 
 void btRigidBody::setGravity(const btVector3& acceleration) 
 {
+    btAssert(!std::isnan(acceleration.getX()));
+    btAssert(!std::isnan(acceleration.getY()));
+    btAssert(!std::isnan(acceleration.getZ()));
 	if (m_inverseMass != btScalar(0.0))
 	{
 		m_gravity = acceleration * (btScalar(1.0) / m_inverseMass);
@@ -148,6 +151,8 @@ void btRigidBody::setGravity(const btVector3& acceleration)
 
 void btRigidBody::setDamping(btScalar lin_damping, btScalar ang_damping)
 {
+    btAssert(!std::isnan(lin_damping));
+    btAssert(!std::isnan(ang_damping));
 	m_linearDamping = btClamped(lin_damping, (btScalar)btScalar(0.0), (btScalar)btScalar(1.0));
 	m_angularDamping = btClamped(ang_damping, (btScalar)btScalar(0.0), (btScalar)btScalar(1.0));
 }
@@ -279,6 +284,13 @@ inline btVector3 evalEulerEqn(const btVector3& w1, const btVector3& w0, const bt
 inline btMatrix3x3 evalEulerEqnDeriv(const btVector3& w1, const btVector3& w0, const btScalar dt,
 	const btMatrix3x3 &I)
 {
+    btAssert(!std::isnan(xform.getOrigin().getX()));
+    btAssert(!std::isnan(xform.getOrigin().getY()));
+    btAssert(!std::isnan(xform.getOrigin().getZ()));
+    btAssert(!std::isnan(xform.getRotation().getX()));
+    btAssert(!std::isnan(xform.getRotation().getY()));
+    btAssert(!std::isnan(xform.getRotation().getZ()));
+    btAssert(!std::isnan(xform.getRotation().getW()));
 
 	btMatrix3x3 w1x, Iw1x;
 	const btVector3 Iwi = (I*w1);

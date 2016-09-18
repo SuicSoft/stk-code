@@ -59,11 +59,18 @@ inline int	btGetVersion()
 //			#pragma warning(disable:4530) // Disable the exception disable but used in MSCV Stl warning.
 //			#pragma warning(disable:4996) //Turn off warnings about deprecated C routines
 //			#pragma warning(disable:4786) // Disable the "debug name too long" warning
-
+#ifdef ENABLE_SSE
 			#define SIMD_FORCE_INLINE __forceinline
 			#define ATTRIBUTE_ALIGNED16(a) __declspec(align(16)) a
 			#define ATTRIBUTE_ALIGNED64(a) __declspec(align(64)) a
 			#define ATTRIBUTE_ALIGNED128(a) __declspec (align(128)) a
+#else
+            #define SIMD_FORCE_INLINE inline
+            #define ATTRIBUTE_ALIGNED16(a) a
+            #define ATTRIBUTE_ALIGNED64(a) a
+            #define ATTRIBUTE_ALIGNED128(a) a
+#endif
+
 		#ifdef _XBOX
 			#define BT_USE_VMX128
 
@@ -132,7 +139,7 @@ inline int	btGetVersion()
 #ifdef __SPU__
 #include <spu_printf.h>
 #define printf spu_printf
-	#define btAssert(x) {if(!(x)){printf("Assert "__FILE__ ":%u ("#x")\n", __LINE__);spu_hcmpeq(0,0);}}
+	#define btAssert(x) {if(!(x)){printf("Assert " __FILE__ ":%u ("#x")\n", __LINE__);spu_hcmpeq(0,0);}}
 #else
 	#define btAssert assert
 #endif
