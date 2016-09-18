@@ -77,13 +77,13 @@ btWheelInfo&	btRaycastVehicle::addWheel( const btVector3& connectionPointCS, con
 	ci.m_wheelsDampingRelaxation = tuning.m_suspensionDamping;
 	ci.m_frictionSlip = tuning.m_frictionSlip;
 	ci.m_bIsFrontWheel = isFrontWheel;
-	ci.m_maxSuspensionTravel = tuning.m_maxSuspensionTravel;
+	ci.m_maxSuspensionTravelCm = tuning.m_maxSuspensionTravelCm;
 	ci.m_maxSuspensionForce = tuning.m_maxSuspensionForce;
 
 	m_wheelInfo.push_back( btWheelInfo(ci));
 	
 	btWheelInfo& wheel = m_wheelInfo[getNumWheels()-1];
-    wheel.m_raycastInfo.m_suspensionLength = 0.0;
+	
 	updateWheelTransformsWS( wheel , false );
 	updateWheelTransform(getNumWheels()-1,false);
 	return wheel;
@@ -118,7 +118,7 @@ void	btRaycastVehicle::updateWheelTransform( int wheelIndex , bool interpolatedT
 	btQuaternion steeringOrn(up,steering);//wheel.m_steering);
 	btMatrix3x3 steeringMat(steeringOrn);
 
-	btQuaternion rotatingOrn(right,0);
+	btQuaternion rotatingOrn(right,-wheel.m_rotation);
 	btMatrix3x3 rotatingMat(rotatingOrn);
 
 	btMatrix3x3 basis2(
@@ -203,8 +203,8 @@ btScalar btRaycastVehicle::rayCast(btWheelInfo& wheel)
 		wheel.m_raycastInfo.m_suspensionLength = hitDistance - wheel.m_wheelsRadius;
 		//clamp on max suspension travel
 
-		btScalar  minSuspensionLength = wheel.getSuspensionRestLength() - wheel.m_maxSuspensionTravel;
-		btScalar maxSuspensionLength = wheel.getSuspensionRestLength()+ wheel.m_maxSuspensionTravel;
+		btScalar  minSuspensionLength = wheel.getSuspensionRestLength() - wheel.m_maxSuspensionTravelCm*btScalar(0.01);
+		btScalar maxSuspensionLength = wheel.getSuspensionRestLength()+ wheel.m_maxSuspensionTravelCm*btScalar(0.01);
 		if (wheel.m_raycastInfo.m_suspensionLength < minSuspensionLength)
 		{
 			wheel.m_raycastInfo.m_suspensionLength = minSuspensionLength;
@@ -296,8 +296,9 @@ void btRaycastVehicle::updateVehicle( btScalar step )
 	int i=0;
 	for (i=0;i<m_wheelInfo.size();i++)
 	{
-		btScalar depth; 
-		depth = rayCast( m_wheelInfo[i]);
+		//btScalar depth; 
+		//depth = 
+		rayCast( m_wheelInfo[i]);
 	}
 
 	updateSuspension(step);
@@ -345,7 +346,17 @@ void btRaycastVehicle::updateVehicle( btScalar step )
 			fwd -= wheel.m_raycastInfo.m_contactNormalWS * proj;
 
 			btScalar proj2 = fwd.dot(vel);
-		} 
+			
+			wheel.m_deltaRotation = (proj2 * step) / (wheel.m_wheelsRadius);
+			wheel.m_rotation += wheel.m_deltaRotation;
+
+		} else
+		{
+			wheel.m_rotation += wheel.m_deltaRotation;
+		}
+		
+		wheel.m_deltaRotation *= btScalar(0.99);//damping of rotation when not in contact
+
 	}
 
 
@@ -746,14 +757,14 @@ void* btDefaultVehicleRaycaster::castRay(const btVector3& from,const btVector3& 
 	if (rayCallback.hasHit())
 	{
 		
-		btRigidBody* body = btRigidBody::upcast(rayCallback.m_collisionObject);
+		const btRigidBody* body = btRigidBody::upcast(rayCallback.m_collisionObject);
         if (body && body->hasContactResponse())
 		{
 			result.m_hitPointInWorld = rayCallback.m_hitPointWorld;
 			result.m_hitNormalInWorld = rayCallback.m_hitNormalWorld;
 			result.m_hitNormalInWorld.normalize();
 			result.m_distFraction = rayCallback.m_closestHitFraction;
-			return body;
+			return (void*)body;
 		}
 	}
 	return 0;

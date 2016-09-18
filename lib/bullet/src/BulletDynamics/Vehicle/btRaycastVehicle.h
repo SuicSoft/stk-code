@@ -24,7 +24,7 @@ class btVehicleTuning;
 ///rayCast vehicle, very special constraint that turn a rigidbody into a vehicle.
 class btRaycastVehicle : public btActionInterface
 {
-protected:
+
 		btAlignedObjectArray<btVector3>	m_forwardWS;
 		btAlignedObjectArray<btVector3>	m_axle;
 		btAlignedObjectArray<btScalar>	m_forwardImpulse;
@@ -43,7 +43,7 @@ public:
 				:m_suspensionStiffness(btScalar(5.88)),
 				m_suspensionCompression(btScalar(0.83)),
 				m_suspensionDamping(btScalar(0.88)),
-				m_maxSuspensionTravel(btScalar(5.)),
+				m_maxSuspensionTravelCm(btScalar(500.)),
 				m_frictionSlip(btScalar(10.5)),
 				m_maxSuspensionForce(btScalar(6000.))
 			{
@@ -51,15 +51,13 @@ public:
 			btScalar	m_suspensionStiffness;
 			btScalar	m_suspensionCompression;
 			btScalar	m_suspensionDamping;
-			btScalar	m_maxSuspensionTravel;
+			btScalar	m_maxSuspensionTravelCm;
 			btScalar	m_frictionSlip;
 			btScalar	m_maxSuspensionForce;
 
 		};
-protected:
+private:
 
-	btScalar	m_tau;
-	btScalar	m_damping;
 	btVehicleRaycaster*	m_vehicleRaycaster;
 	btScalar		m_pitchControl;
 	btScalar	m_steeringValue; 

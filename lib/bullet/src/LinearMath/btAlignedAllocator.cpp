@@ -59,24 +59,17 @@ static inline void btAlignedFreeDefault(void *ptr)
 }
 #else
 
+
+
+
+
 static inline void *btAlignedAllocDefault(size_t size, int alignment)
 {
   void *ret;
   char *real;
-#ifdef __MINGW64__
-  uintptr_t offset;
-#else
-  unsigned long offset;
-#endif
-
   real = (char *)sAllocFunc(size + sizeof(void *) + (alignment-1));
   if (real) {
-#ifdef __MINGW64__
-    offset = (alignment - (uintptr_t)(real + sizeof(void *))) & (alignment-1);
-#else
-    offset = (alignment - (unsigned long)(real + sizeof(void *))) & (alignment-1);
-#endif
-    ret = (void *)((real + sizeof(void *)) + offset);
+	ret = btAlignPointer(real + sizeof(void *),alignment);
     *((void **)(ret)-1) = (void *)(real);
   } else {
     ret = (void *)(real);
@@ -119,7 +112,6 @@ void*   btAlignedAllocInternal  (size_t size, int alignment,int line,char* filen
 {
  void *ret;
  char *real;
- unsigned long offset;
 
  gTotalBytesAlignedAllocs += size;
  gNumAlignedAllocs++;
@@ -127,9 +119,7 @@ void*   btAlignedAllocInternal  (size_t size, int alignment,int line,char* filen
  
  real = (char *)sAllocFunc(size + 2*sizeof(void *) + (alignment-1));
  if (real) {
-   offset = (alignment - (unsigned long)(real + 2*sizeof(void *))) &
-(alignment-1);
-   ret = (void *)((real + 2*sizeof(void *)) + offset);
+   ret = (void*) btAlignPointer(real + 2*sizeof(void *), alignment);
    *((void **)(ret)-1) = (void *)(real);
        *((int*)(ret)-2) = size;
 
