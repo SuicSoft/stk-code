@@ -33,6 +33,8 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverConstraint
 
 	btVector3		m_relpos1CrossNormal;
 	btVector3		m_contactNormal1;
+	btVector3		m_contactNormal;
+	
 
 	btVector3		m_relpos2CrossNormal;
 	btVector3		m_contactNormal2; //usually m_contactNormal2 == -m_contactNormal1, but not always
@@ -57,6 +59,17 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverConstraint
 		btScalar	m_unusedPadding4;
 		int			m_numRowsForNonContactConstraint;
 	};
+	union
+	{
+		btRigidBody*	m_solverBodyA;
+		int				m_companionIdA;
+	};
+	union
+	{
+		btRigidBody*	m_solverBodyB;
+		int				m_companionIdB;
+	};
+	
 
 	int	m_overrideNumSolverIterations;
     int			m_frictionIndex;

@@ -586,6 +586,92 @@ public:
 
 	virtual void serializeSingleObject(class btSerializer* serializer) const;
 
+	////////////////////////////////////////////////
+	///some internal methods, don't use them
+
+	btVector3& internalGetDeltaLinearVelocity()
+	{
+		return m_deltaLinearVelocity;
+	}
+
+	btVector3& internalGetDeltaAngularVelocity()
+	{
+		return m_deltaAngularVelocity;
+	}
+
+	const btVector3& internalGetAngularFactor() const
+	{
+		return m_angularFactor;
+	}
+
+	const btVector3& internalGetInvMass() const
+	{
+		return m_invMass;
+	}
+
+	btVector3& internalGetPushVelocity()
+	{
+		return m_pushVelocity;
+	}
+
+	btVector3& internalGetTurnVelocity()
+	{
+		return m_turnVelocity;
+	}
+
+	SIMD_FORCE_INLINE void	internalGetVelocityInLocalPointObsolete(const btVector3& rel_pos, btVector3& velocity ) const
+	{
+		velocity = getLinearVelocity()+m_deltaLinearVelocity + (getAngularVelocity()+m_deltaAngularVelocity).cross(rel_pos);
+	}
+
+	SIMD_FORCE_INLINE void	internalGetAngularVelocity(btVector3& angVel) const
+	{
+		angVel = getAngularVelocity()+m_deltaAngularVelocity;
+	}
+
+
+	//Optimization for the iterative solver: avoid calculating constant terms involving inertia, normal, relative position
+	SIMD_FORCE_INLINE void internalApplyImpulse(const btVector3& linearComponent, const btVector3& angularComponent,const btScalar impulseMagnitude)
+	{
+		if (m_inverseMass)
+		{
+            btAssert(!std::isnan(impulseMagnitude));
+            btAssert(!std::isnan(linearComponent.getX()));
+            btAssert(!std::isnan(linearComponent.getY()));
+            btAssert(!std::isnan(linearComponent.getZ()));
+			m_deltaLinearVelocity += linearComponent*impulseMagnitude;
+			m_deltaAngularVelocity += angularComponent*(impulseMagnitude*m_angularFactor);
+		}
+	}
+
+	SIMD_FORCE_INLINE void internalApplyPushImpulse(const btVector3& linearComponent, const btVector3& angularComponent,btScalar impulseMagnitude)
+	{
+		if (m_inverseMass)
+		{
+			m_pushVelocity += linearComponent*impulseMagnitude;
+			m_turnVelocity += angularComponent*(impulseMagnitude*m_angularFactor);
+		}
+	}
+
+	void	internalWritebackVelocity()
+	{
+		if (m_inverseMass)
+		{
+			setLinearVelocity(getLinearVelocity()+ m_deltaLinearVelocity);
+			setAngularVelocity(getAngularVelocity()+m_deltaAngularVelocity);
+			//m_deltaLinearVelocity.setZero();
+			//m_deltaAngularVelocity .setZero();
+			//m_originalBody->setCompanionId(-1);
+		}
+	}
+
+
+	void	internalWritebackVelocity(btScalar timeStep);
+
+
+
+	///////////////////////////////////////////////
+
 };
 
 //@todo add m_optionalMotionState and m_constraintRefs to btRigidBodyData
@@ -645,4 +731,5 @@ struct	btRigidBodyDoubleData
 
 
 #endif //BT_RIGIDBODY_H
+
 
