@@ -47,12 +47,12 @@ public:
 	virtual void prepareSolve (int /* numBodies */, int /* numManifolds */) {;}
 
 	///solve a group of constraints
-	virtual btScalar solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints, const btContactSolverInfo& info,class btIDebugDraw* debugDrawer,btDispatcher* dispatcher) = 0;
+	btScalar solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints, const btContactSolverInfo& info,class btIDebugDraw* debugDrawer,btDispatcher* dispatcher);
 
 	virtual void allSolved (const btContactSolverInfo& /* info */,class btIDebugDraw* /* debugDrawer */) {;}
 
 	///clear internal cached data and reset random seed
-	virtual	void	reset() = 0;
+	virtual void reset() = 0;
 
 	virtual btConstraintSolverType	getSolverType() const=0;
 
