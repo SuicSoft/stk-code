@@ -33,6 +33,7 @@
 #include "utils/tuple.hpp"
 
 #include <S3DVertex.h>
+#include <thread>
 
 /**
 \page render_geometry Geometry Rendering Overview
@@ -1181,6 +1182,10 @@ void multidraw1stPass(Args...args)
 
 static core::vector3df windDir;
 
+void RenderDrawList(unsigned i)
+{
+    ImmediateDrawList::getInstance()->at(i)->render();
+}
 // ----------------------------------------------------------------------------
 void IrrDriver::renderSolidFirstPass()
 {
@@ -1196,7 +1201,7 @@ void IrrDriver::renderSolidFirstPass()
         irr_driver->setPhase(SOLID_NORMAL_AND_DEPTH_PASS);
 
         for (unsigned i = 0; i < ImmediateDrawList::getInstance()->size(); i++)
-            ImmediateDrawList::getInstance()->at(i)->render();
+            new std::thread(RenderDrawList,i);
 
         renderMeshes1stPass<DefaultMaterial, 2, 1>();
         renderMeshes1stPass<SplattingMat, 2, 1>();
@@ -1379,7 +1384,7 @@ void IrrDriver::renderSolidSecondPass()
         irr_driver->setPhase(SOLID_LIT_PASS);
 
         for (unsigned i = 0; i < ImmediateDrawList::getInstance()->size(); i++)
-            ImmediateDrawList::getInstance()->at(i)->render();
+            new std::thread(RenderDrawList,i);
 
         std::vector<GLuint> DiffSpecSSAOTex =
             createVector<GLuint>(m_rtts->getRenderTarget(RTT_DIFFUSE),
