@@ -1201,7 +1201,7 @@ void IrrDriver::renderSolidFirstPass()
         irr_driver->setPhase(SOLID_NORMAL_AND_DEPTH_PASS);
 
         for (unsigned i = 0; i < ImmediateDrawList::getInstance()->size(); i++)
-            new std::thread(RenderDrawList,i);
+            (new std::thread(RenderDrawList,i))->detach();
 
         renderMeshes1stPass<DefaultMaterial, 2, 1>();
         renderMeshes1stPass<SplattingMat, 2, 1>();
@@ -1384,7 +1384,7 @@ void IrrDriver::renderSolidSecondPass()
         irr_driver->setPhase(SOLID_LIT_PASS);
 
         for (unsigned i = 0; i < ImmediateDrawList::getInstance()->size(); i++)
-            new std::thread(RenderDrawList,i);
+            (new std::thread(RenderDrawList,i))->detach();
 
         std::vector<GLuint> DiffSpecSSAOTex =
             createVector<GLuint>(m_rtts->getRenderTarget(RTT_DIFFUSE),
